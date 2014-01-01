@@ -1,3 +1,7 @@
+#--------------------------------------------
+# All rights reserved by Yuichiro Kuzuryu
+#--------------------------------------------
+
 require("./hands_class")
 
 class AllHands

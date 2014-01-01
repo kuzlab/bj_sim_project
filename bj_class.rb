@@ -1,4 +1,8 @@
-#autoload("bj_config.rb")
+#--------------------------------------------
+# All rights reserved by Yuichiro Kuzuryu
+#--------------------------------------------
+
+
 require("./bj_config.rb")
 require("./hands_class.rb")
 require("./allhands_class.rb")

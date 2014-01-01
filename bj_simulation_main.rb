@@ -1,9 +1,10 @@
+#--------------------------------------------
+# All rights reserved by Yuichiro Kuzuryu
+#--------------------------------------------
+
 =begin
 ここにメインループを記述
 =end
-
-#load("bj_config.rb")
-#load("bj_functions.rb")
 
 load("./bj_class.rb")
 

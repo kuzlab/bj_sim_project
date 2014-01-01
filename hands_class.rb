@@ -1,3 +1,7 @@
+#--------------------------------------------
+# All rights reserved by Yuichiro Kuzuryu
+#--------------------------------------------
+
 require("./bj_config.rb")
 
 class Hands
