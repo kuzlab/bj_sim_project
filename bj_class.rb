@@ -35,6 +35,7 @@ class Bj
         @black_jack = 0
         
         @burst_count = 0
+        @burst_with_dealer_burst = 0
         
         @ins_win = 0
         @ins_lose = 0
@@ -49,11 +50,21 @@ class Bj
         for i in 0..(DECK * 4 * 13)
             @cards[i] = 1
         end
+
+        @winner_hand = Array.new(31)
+        for i in 0..30
+            @winner_hand[i] = 0
+        end        
+        @loser_hand = Array.new(31)
+        for i in 0..30
+            @loser_hand[i] = 0
+        end
     end
     
     def addWin(num)
         @win_num += 1
         @fund += BET_UNIT
+        @winner_hand[@hands.getTotal(num)] += 1
         if @hands.getBlackJackFlag(num) == 1
             @black_jack += 1
             @fund += BET_UNIT * 0.5           
@@ -71,6 +82,7 @@ class Bj
     def addLose(num)
         @lose_num += 1
         @fund -= BET_UNIT
+        @loser_hand[@hands.getTotal(num)] += 1
         if @hands.getDoubleDownFlag(num) == 1
             @lose_dd_num += 1
             @fund -= BET_UNIT
@@ -80,6 +92,9 @@ class Bj
         end
         if @hands.getTotal(num) > 21
             @burst_count += 1
+            if @hands.getTotal(DEALER) > 21
+                @burst_with_dealer_burst += 1
+            end
         end
     end
     
@@ -127,7 +142,7 @@ class Bj
         print("w/l/d = #{@win_num}/ #{@lose_num}/ #{@draw_num}\n")
         print("d.d. w/l/d = #{@win_dd_num}/ #{@lose_dd_num}/ #{@draw_dd_num}\n")
         print("split w/l/d = #{@win_split_num}/ #{@lose_split_num}/ #{@draw_split_num}\n")
-        print("BlackJack = #{@black_jack}, Burst = #{@burst_count}\n")
+        print("BlackJack = #{@black_jack}, Burst = #{@burst_count} (with dealer burst = #{@burst_with_dealer_burst})\n")
         print("Ins. w/l/even m. = #{@ins_win}/ #{@ins_lose}/ #{@even_money}\n")
     end
     
@@ -249,9 +264,9 @@ class Bj
             end
         end
         for i in FIRST..EXT3
-            if @hands.standDecision(i, @hands.getFaceCard(DEALER)) != DECIDE_STAND
+            if @hands.countBurstMemberAndPassiveDesicion(i, @hands.getFaceCard(DEALER)) != DECIDE_STAND
                 @hands.doubleDownDecision(i)
-                while @hands.standDecision(i, @hands.getFaceCard(DEALER)) != DECIDE_STAND
+                while @hands.countBurstMemberAndPassiveDesicion(i, @hands.getFaceCard(DEALER)) != DECIDE_STAND
                     @hands.addPulledCard(i, self.getPullCardValue)
                     while @hands.getTotal(i) > 21 && @hands.getNumOfAce(i) > 0
                         @hands.aceToOne(i)
@@ -316,6 +331,22 @@ class Bj
            end
            @cards_pulled = 0 
        end
+    end
+    
+    def dispHandsHistgram
+        min = 0
+        max = 21
+        
+        for i in 0..30
+            if @winner_hand[i] > 0
+                min = i
+                break
+            end
+        end
+        print("\tWinner / Loser")        
+        for i in min..max
+            print("[#{i}] : #{@winner_hand[i]} / #{@loser_hand[i]}\n")
+        end
     end
     
                 

@@ -133,5 +133,15 @@ class Hands
         
         return result 
     end
+    
+    def compareOnlyFaceCard(dealer_face_card)
+        temp = dealer_face_card + 10
         
+        if temp > self.getTotal || self.getTotal > 21 #&& temp >= 17
+            return DEALER_WIN_ONLY_FACE_CARD
+        else
+            return DEALER_NOT_WIN_ONLY_FACE_CARD
+        end
+    end
+    
 end

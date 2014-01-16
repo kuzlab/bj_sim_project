@@ -262,56 +262,74 @@ class AllHands
         end        
     end
     
-    def standDecision(num, dealer_face_card)
+    def standDecision(num, dealer_face_card, passive_threshold_count)
         result = 0
         case num
         when FIRST
-            if @first_hands.getCardNum <= 0 || (@first_hands.getCard(0) == 11 && @splitFlag[num] == 1) || @blackJackFlag[num] == 1 
+            if @first_hands.getCardNum <= 0 || (@first_hands.getCard(0) == 11 && @splitFlag[num] == 1) || @blackJackFlag[num] == 1 || @first_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
                  return DECIDE_STAND
             else
                 temp = @first_hands.getTotal
+                temp_numoface = @first_hands.getNumOfAce
             end
         when SECOND
-            if @second_hands.getCardNum <= 0 || (@second_hands.getCard(0) == 11 && @splitFlag[num] == 1) || @blackJackFlag[num] == 1
+            if @second_hands.getCardNum <= 0 || (@second_hands.getCard(0) == 11 && @splitFlag[num] == 1) || @blackJackFlag[num] == 1 || @second_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
                  return DECIDE_STAND
             else
                 temp = @second_hands.getTotal
+                temp_numoface = @second_hands.getNumOfAce
             end
         when THIRD
-            if @third_hands.getCardNum <= 0 || (@third_hands.getCard(0) == 11 && @splitFlag[num] == 1) || @blackJackFlag[num] == 1
+            if @third_hands.getCardNum <= 0 || (@third_hands.getCard(0) == 11 && @splitFlag[num] == 1) || @blackJackFlag[num] == 1 || @third_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
                  return DECIDE_STAND
             else
                 temp = @third_hands.getTotal
+                temp_numoface = @third_hands.getNumOfAce                
             end
         when EXT1
-            if @ext1_hands.getCardNum <= 0 || (@ext1_hands.getCard(0) == 11 && @splitFlag[num] == 1)
+            if @ext1_hands.getCardNum <= 0 || (@ext1_hands.getCard(0) == 11 && @splitFlag[num] == 1) || @ext1_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
                  return DECIDE_STAND
             else
                 temp = @ext1_hands.getTotal
+                temp_numoface = @ext1_hands.getNumOfAce
             end
         when EXT2
-            if @ext2_hands.getCardNum <= 0 || (@ext2_hands.getCard(0) == 11 && @splitFlag[num] == 1)
+            if @ext2_hands.getCardNum <= 0 || (@ext2_hands.getCard(0) == 11 && @splitFlag[num] == 1) || @ext2_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
                  return DECIDE_STAND
             else
                 temp = @ext2_hands.getTotal
+                temp_numoface = @ext2_hands.getNumOfAce
             end
         when EXT3
-            if @ext3_hands.getCardNum <= 0 || (@ext3_hands.getCard(0) == 11 && @splitFlag[num] == 1)
+            if @ext3_hands.getCardNum <= 0 || (@ext3_hands.getCard(0) == 11 && @splitFlag[num] == 1) || @ext3_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
                  return DECIDE_STAND
             else
                 temp = @ext3_hands.getTotal
+                temp_numoface = @ext3_hands.getNumOfAce
             end
         else
             print("error - standDecision(num, dealer_face_card) wrong num\n")
         end
         
         if dealer_face_card > DEALER_FACE_CARD_WEAK_STRONG_THD
-            if temp > HIT_MAX_WEAK_DEALER            
-                result = DECIDE_STAND
+            if temp_numoface > 0
+                if (temp > (HIT_MAX_WEAK_DEALER_WITH_ACE - passive_threshold_count)) && (temp >= 11)
+                    result = DECIDE_STAND
+                end
+            else
+                if (temp > (HIT_MAX_WEAK_DEALER - passive_threshold_count)) && (temp >= 11)   
+                    result = DECIDE_STAND
+                end
             end
         else
-            if temp > HIT_MAX_STRONG_DEALER            
-                result = DECIDE_STAND
+            if temp_numoface > 0
+                if (temp > (HIT_MAX_STRONG_DEALER_WITH_ACE - passive_threshold_count)) && (temp >= 11)
+                    result = DECIDE_STAND
+                end
+            else
+                if (temp > (HIT_MAX_STRONG_DEALER - passive_threshold_count)) && (temp >= 11)           
+                    result = DECIDE_STAND
+                end
             end
         end
         
@@ -351,6 +369,131 @@ class AllHands
     
     def getDoubleDownFlag(num)
         return @doubleDownFlag[num]
+    end
+    
+    def countBurstMemberAndPassiveDesicion(num, dealer_face_card)
+        passive_threshold_count = 0
+        case num
+        when FIRST
+            
+        when SECOND
+            if @first_hands.getTotal > 21
+                passive_threshold_count += 1
+            end
+            if @first_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
+                passive_threshold_count -= 1
+            end
+                        
+        when THIRD
+            if @first_hands.getTotal > 21
+                passive_threshold_count += 1
+            end
+            if @first_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
+                passive_threshold_count -= 1
+            end            
+            if @second_hands.getTotal > 21
+                passive_threshold_count += 1
+            end
+            if @second_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
+                passive_threshold_count -= 1
+            end            
+            
+        when EXT1
+            if @first_hands.getTotal > 21
+                passive_threshold_count += 1
+            end
+            if @first_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
+                passive_threshold_count -= 1
+            end
+            if @second_hands.getTotal > 21
+                passive_threshold_count += 1
+            end
+            if @second_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
+                passive_threshold_count -= 1
+            end
+            if @third_hands.getTotal > 21
+                passive_threshold_count += 1
+            end
+            if @third_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
+                passive_threshold_count -= 1
+            end
+
+        when EXT2
+            if @first_hands.getTotal > 21
+                passive_threshold_count += 1
+            end
+            if @first_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
+                passive_threshold_count -= 1
+            end
+            if @second_hands.getTotal > 21
+                passive_threshold_count += 1
+            end
+            if @second_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
+                passive_threshold_count -= 1
+            end
+            if @third_hands.getTotal > 21
+                passive_threshold_count += 1
+            end
+            if @third_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
+                passive_threshold_count -= 1
+            end
+            if @ext1_hands.getTotal > 21 && @ext1_hands.getCardNum > 0
+                passive_threshold_count += 1
+            end
+            if @ext1_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD && @ext1_hands.getCardNum > 0
+                passive_threshold_count -= 1
+            end
+            
+            
+        when EXT3
+            if @first_hands.getTotal > 21
+                passive_threshold_count += 1
+            end
+            if @first_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
+                passive_threshold_count -= 1
+            end
+            if @second_hands.getTotal > 21
+                passive_threshold_count += 1
+            end
+            if @second_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
+                passive_threshold_count -= 1
+            end
+            if @third_hands.getTotal > 21
+                passive_threshold_count += 1
+            end
+            if @third_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD
+                passive_threshold_count -= 1
+            end
+            if @ext1_hands.getTotal > 21 && @ext1_hands.getCardNum > 0
+                passive_threshold_count += 1
+            end
+            if @ext1_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD && @ext1_hands.getCardNum > 0
+                passive_threshold_count -= 1
+            end
+            if @ext2_hands.getTotal > 21 && @ext1_hands.getCardNum > 0
+                passive_threshold_count += 1
+            end
+            if @ext2_hands.compareOnlyFaceCard(dealer_face_card) == DEALER_NOT_WIN_ONLY_FACE_CARD && @ext2_hands.getCardNum > 0
+                passive_threshold_count -= 1
+            end
+            
+        else
+            print("error - countBurstMemberAndPassiveDesicion(num) wrong num\n")
+        end
+        
+        count = 0
+        for i in FIRST..EXT3
+            if @splitFlag[i] == 1
+                count += 1
+            end
+        end
+        
+        passive_threshold_count += (count / 2)
+        
+        
+        
+        return self.standDecision(num, dealer_face_card, passive_threshold_count)
+        
     end
     
 end

@@ -24,6 +24,7 @@ while bjsim.getMatchCount < bjsim.getEndMatch
     end
     
     bjsim.dispAllHands
+    bjsim.dispHandsHistgram
     
     
     bjsim.shuffleIfNeed
